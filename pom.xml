@@ -1,0 +1,124 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.campusfind</groupId>
+  <artifactId>campusfind-java</artifactId>
+  <version>1.0.0</version>
+  <packaging>war</packaging>
+  <name>CampusFind - Java Mini Project (JSP/Servlet)</name>
+  <description>Lost-and-found web app for campus. Java + JSP + Servlets + JDBC (H2). College mini-project.</description>
+
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <tomcat.version>10.1.26</tomcat.version>
+  </properties>
+
+  <dependencies>
+    <!-- Servlet API (provided by Tomcat, but needed at compile time) -->
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>6.0.0</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- JSP + JSTL -->
+    <dependency>
+      <groupId>jakarta.servlet.jsp.jstl</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+      <version>3.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.web</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+      <version>3.0.1</version>
+    </dependency>
+
+    <!-- Embedded Tomcat (compile scope so `java -cp` run works; EXCLUDED from WAR below to avoid duplicate-Jasper crash) -->
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-core</artifactId>
+      <version>${tomcat.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-jasper</artifactId>
+      <version>${tomcat.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-el</artifactId>
+      <version>${tomcat.version}</version>
+    </dependency>
+
+    <!-- EL implementation for JSP compilation under embedded Tomcat.
+         tomcat-embed-el has no META-INF/services entry, so Jasper's
+         FactoryFinder falls back to com.sun.el (GlassFish). This provides it. -->
+    <dependency>
+      <groupId>org.glassfish</groupId>
+      <artifactId>jakarta.el</artifactId>
+      <version>4.0.2</version>
+    </dependency>
+
+    <!-- H2 file database (zero-setup JDBC, perfect for college demo + LAN) -->
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>2.2.224</version>
+    </dependency>
+
+    <!-- Password hashing (BCrypt, like the Node version) -->
+    <dependency>
+      <groupId>org.mindrot</groupId>
+      <artifactId>jbcrypt</artifactId>
+      <version>0.4</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <finalName>campusfind</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>3.4.0</version>
+        <configuration>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
+          <!-- Exclude embedded-Tomcat CORE+JASPER from WAR: they live on the
+               launcher classpath. Bundling them causes
+               ClassCastException JasperInitializer (loaded twice).
+               KEEP tomcat-embed-el in WAR: JSP/EL compilation needs
+               com.sun.el.ExpressionFactoryImpl inside the webapp. -->
+          <packagingExcludes>WEB-INF/lib/tomcat-embed-core-*.jar,WEB-INF/lib/tomcat-embed-jasper-*.jar,WEB-INF/lib/ecj-*.jar,WEB-INF/lib/tomcat-annotations-api-*.jar</packagingExcludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.6.0</version>
+        <executions>
+          <execution>
+            <id>build-classpath</id>
+            <phase>package</phase>
+            <goals><goal>build-classpath</goal></goals>
+            <configuration>
+              <outputFile>${project.build.directory}/classpath.txt</outputFile>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+          <mainClass>com.campusfind.App</mainClass>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

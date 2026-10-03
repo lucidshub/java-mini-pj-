@@ -1,0 +1,8 @@
+target/
+*.class
+campusfind_db*
+uploads/
+tomcat.*/
+.DS_Store
+.idea/
+*.iml
