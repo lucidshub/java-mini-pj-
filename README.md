@@ -22,12 +22,28 @@ Converted from Node/React version (`abdulahad-m07/campusfind`) to pure Java.
 - BCrypt passwords (`jbcrypt`)
 - WAR also deployable to standalone Tomcat
 
-## Run locally
+## Run on YOUR laptop / FRIEND's laptop (same steps, each runs their own copy)
+
+Prerequisites (one-time per laptop):
+1. **Java 17+** — check: `java -version`. If missing: https://adoptium.net/temurin/releases (pick JDK 17, your OS)
+2. **Maven 3.8+** — check: `mvn -version`. If missing: https://maven.apache.org/download.cgi (Mac: `brew install maven`)
+3. **Git** — https://git-scm.com/downloads
+
+Steps:
 ```bash
+git clone https://github.com/lucidshub/java-mini-pj-.git campusfind-java
+cd campusfind-java
+chmod +x run.sh   # mac/Linux only (skip on Windows)
 ./run.sh
 # open http://localhost:8080
 ```
-(`run.sh` sets JAVA_HOME/Maven, builds, and starts embedded Tomcat.)
+Windows (no bash): run the two commands `run.sh` performs:
+```
+mvn package -DskipTests
+java -cp "target\classes;target\classpath.txt" com.campusfind.App
+```
+(Note: on Windows generate the classpath first: `mvn dependency:build-classpath -Dmdep.outputFile=target/classpath.txt -Dmdep.pathSeparator=";"`)
+Each laptop gets its own database (`campusfind_db.mv.db` is git-ignored, auto-created with 3 demo items).
 
 ## Friend on same WiFi (LAN demo — no deployment needed)
 1. Connect both laptops to SAME WiFi/hotspot.

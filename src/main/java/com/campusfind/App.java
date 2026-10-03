@@ -34,7 +34,7 @@ public class App {
         new File("uploads").mkdirs();
 
         tomcat.start();
-        String ip = java.net.InetAddress.getLocalHost().getHostAddress();
+        String ip = lanIp();
         System.out.println("\n==============================================");
         System.out.println(" CampusFind (Java JSP/Servlet) running!");
         System.out.println(" Local : http://localhost:" + port);
@@ -65,6 +65,28 @@ public class App {
                 }
             }
         }
+    }
+
+    /** Best-effort LAN IPv4 (e.g. 192.168.x.x) so a friend on the same WiFi can connect. */
+    private static String lanIp() {
+        try {
+            var ifaces = java.net.NetworkInterface.getNetworkInterfaces();
+            while (ifaces.hasMoreElements()) {
+                var ni = ifaces.nextElement();
+                if (!ni.isUp() || ni.isLoopback() || ni.isVirtual()) continue;
+                var addrs = ni.getInetAddresses();
+                while (addrs.hasMoreElements()) {
+                    var a = addrs.nextElement();
+                    if (a instanceof java.net.Inet4Address && a.isSiteLocalAddress()) {
+                        return a.getHostAddress();
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+        try {
+            return java.net.InetAddress.getLocalHost().getHostAddress();
+        } catch (Exception ignored) {}
+        return "YOUR-IP";
     }
 
     private static String findWebappDir() {
